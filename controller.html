@@ -1,0 +1,19 @@
+<!DocType Html>
+<html>
+<head>
+	<title>Controller.js tester</title>
+	<script src="libaries/controller.js"></script>
+	<script src="libaries/console.js"></script>
+	<script>
+		var con = new controller("Player1","UP: Up Arrow, DOWN: Down Arrow, RIGHT:Right Arrow,LEFT:Left Arrow,A: Z"),
+		c=document.createElement('canvas'),ctx=c.getContext('2d');
+		c.width=800;
+		c.height=600;
+		c.snas||window.location=window.location;
+		window.onload=function(){
+			document.body.appendChild(c);
+		};
+	</script>
+</head>
+<body></body>
+</html>

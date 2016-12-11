@@ -1,0 +1,130 @@
+<!DocType Html>
+<html>
+	<head>
+		<title>The Ultimate Mind-Game</title>
+		<script>
+			function d(id){return document.getElementById(id);}
+			var winval=0,avail=0,Names=[],Order=[],state="settings",Points=[],pnum=0,pval=0,current=[];
+			function sort(a){
+				var b=1,c=[],d=[],e;
+				for(e in a)if(a[e]!=a[0])b=0;
+				if(b)return a;
+				for(e in a)b+=a[e];
+				b/=a.length;
+				for(e in a)(a[e]>b?c:d).push(a[e]);
+				return sort(d).concat(sort(c))
+			}
+			function start(){state="start";d("spam").innerHTML=Order[pnum];}
+			function reset(){pnum=0;alert("The next round begins.");start();current=[];}
+			function go(){
+				switch(state){
+					case"settings":
+						Names=d("names").value.replace(/^\W+|\W+$/,"").split(/\W+/);
+						winval=+d("winval").value;
+						avail=+d("avail").value;
+						console.log(winval,avail);
+						if(Names.length<2||isNaN(winval)||isNaN(avail)||avail%1||winval%1)
+							alert("Must have at least 2 names.\n\nAvailible points and Total Points must both be integers.");
+						else {
+							Points=[];
+							current=[];
+							while(Names.length){
+								Order.push(Names.splice(Math.floor(Math.random()*Names.length),1)[0]);
+								Points.push(0);
+							}
+							alert("The players will choose in this order: "+Order.join(", "));
+							start();
+						}
+						break;
+					case"start":
+						state="game";
+						d("points").value=0;
+						d("Spam").innerHTML=Order[pnum];
+						d("span").innerHTML=avail;
+						break;
+					case"game":
+						pval=+d("points").value;
+						if(pval%1||pval>=avail||pval<0)
+							alert(`Your input must be an integer between 0 and ${avail-1}.`);
+						else {
+							d("game").hidden=true;
+							current.push(avail-pval);
+							if(pnum+1<Order.length){
+								pnum++;
+								start();
+							} else state="results";
+						}
+						break;
+					case"results":
+						var sorted=sort(current),num=[],i;
+						for(i in current)
+							if(current[i]==sorted[0])num.push(i);
+						if(num.length>1){
+							/*var list=[];
+							for(i in num){
+								Points[num[i]]+=Math.floor(sorted[0]/2/num.length);
+								list.push(Order[num[i]]);
+							}
+							alert("The winners of this round are: "+list.join(", "));*/
+							alert("There was a tie for first place! Nobody gets anything.");
+							reset();
+						} else {
+							Points[num[0]]+=sorted[0];
+							if(Points[num[0]]<winval){
+								alert(`The winner of this round is ${Order[num[0]]}, who got ${sorted[0]} points.`);
+								reset();
+							} else {
+								alert(Order[num[0]]+" wins!");
+								state="settings";
+							}
+						}
+						break;
+				}
+				for(var i of document.querySelectorAll("div"))
+					i.hidden=true;
+				d(state).hidden=false;
+				if(state!="settings"){
+					d("desc").innerHTML=`<hr>The winning player must get ${winval} points to win.<br><h2>Player Status</h2>`;
+					for(i in Order){
+						d("desc").innerHTML+=`${Order[i]}: ${Points[i]} points<br>`;
+					}
+				} else d("desc").innerHTML="";
+			}
+		</script>
+	</head>
+	<body>
+		<div id="settings">
+			<h2>Settings</h2>
+			Two or more people can play this game (although two is recommended.)<br>
+			Names of the players (only \w characters): <input id="names"><br>
+			Number of points required to win: <input type="number" value="10000" id="winval"><br>
+			Points availible per round: <input type="number" value="1000" id="avail"><br>
+			<button onclick="go()">Begin the game</button><br><br>
+			<h2>Rules</h2>
+			Each player is given N points.<br>
+			They can choose to burn some of their points, thus making them non-existant.<br><br>
+			The player who burns the most points gets to keep all of their remaining points.<br>
+			Everyone else gets nothing.<br><br>
+			If there is a tie for first place, no one gets anything.<br>
+			where B is the number of players who tied and A is the number of points the tied players have remaining.<br><br>
+			Whoever can get the target number of points first wins.
+		</div>
+		<div id="start" hidden>
+			Please give the computer to <span id="spam"></span>.<br>
+			Everyone else look away, otherwise this game is really dumb.<br>
+			Also, no one talk.<br>
+			<button onclick="go()">Ready!</button>
+		</div>
+		<div id="game" hidden>
+			<span id="Spam"></span>, enter the number of points you wish to burn out of the <span id="span"></span> points you are recieving.<br>
+			<input id="points" type="number">
+			<button onclick="go()">Turn n' Burn</button>
+		</div>
+		<div id="results" hidden>
+			You can show everyone now.
+			<button onclick="go()">Get the results</button>
+		</div>
+		<p id="desc"></p>
+	</body>
+</html>
+	

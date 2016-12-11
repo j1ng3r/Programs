@@ -1,0 +1,90 @@
+<!DocType Html>
+<html>
+	<head>
+		<title>Angular Integral Calculator</title>
+		<script>
+			var c=document.createElement("canvas"),ctx=c.getContext("2d"),s=null,o=null,p={
+				x:0,
+				y:0,
+				a:0,
+				b:0,
+				s:100,
+				n:1000,
+				d:0.002
+				
+			},points=[],interval=0,m=1;
+			c.width=800;
+			c.height=600;
+			c.tabindex=1;
+			function f(x){
+				return x*Math.cos(x)//x?9*Math.sin(x)/x+1:10;
+			}
+			function draw(){
+				ctx.fillStyle="#000";
+				ctx.fillRect(0,0,800,600);
+				ctx.fillStyle="#fff";
+				for(var i of points)
+					ctx.fillRect(399+p.s*((i.x-p.x)*Math.cos(p.a)-(i.y-p.y)*Math.sin(p.a)),299-p.s*((i.y-p.y)*Math.cos(p.a)+(i.x-p.x)*Math.sin(p.a)),2,2);
+			}
+			function run(){
+				clearInterval(interval);
+				s={x:p.x,y:p.y,a:p.a,p:p.b};
+				o={x:p.x,y:p.y,a:p.a,p:p.b};
+				points=[{x:s.x,y:s.y}];
+				interval=setInterval(function(){
+					swatch();
+					alert(JSON.stringify(s));
+					for(var i=0;i<p.n;i++){
+						s.d=Math.min(p.d,p.d/f(s.p))*m;
+						s.x+=Math.cos(s.a)*s.d;
+						s.y+=Math.sin(s.a)*s.d;
+						s.a+=f(s.p)*s.d;
+						s.p+=s.d;
+						points.push({x:s.x,y:s.y});
+					}
+					draw();
+				});
+			}
+			window.onload=function(){
+				document.body.appendChild(c);
+				window.addEventListener("keydown",function(e){
+					switch(e.keyCode){
+						case 81:
+							p.s*=1.5;
+							break;
+						case 69:
+							p.s/=1.5;
+							break;
+						case 87:
+							move(0,1);
+							break;
+						case 65:
+							move(-1,0);
+							break;
+						case 83:
+							move(0,-1);
+							break;
+						case 68:
+							move(1,0);
+							break;
+						case 67:
+							p.a-=0.05;
+							break;
+						case 90:
+							p.a+=0.05;
+					}
+				});
+				run();
+			};
+			function move(x,y){
+				p.x+=5/p.s*(x*Math.cos(p.a)+y*Math.sin(p.a));
+				p.y+=5/p.s*(y*Math.cos(p.a)-x*Math.sin(p.a));
+			}
+			function swatch(){
+				[o,s]=[s,o];
+				m*=-1;
+			}
+		</script>
+	</head>
+	<body></body>
+</html>
